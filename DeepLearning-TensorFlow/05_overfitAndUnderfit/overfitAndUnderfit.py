@@ -59,9 +59,9 @@ def pack_row(*row):
 
     label = row[0]
 
-    feature = tf.stack(row[1:], 1)
+    features = tf.stack(row[1:], 1)
 
-    return feature, label
+    return features, label
 
 """
 当处理大量数据时，TensorFlow效率最高。
@@ -127,7 +127,7 @@ train_ds = train_ds.shuffle(BUFFER_SIZE).repeat().batch(BATCH_SIZE)
 """
 
 lr_schedule = tf.keras.optimizers.schedules.InverseTimeDecay(
-    0.01,
+    0.001,
     decay_steps=STEPS_PER_EPOCH * 1000,
     decay_rate=1,
     staircase=False
@@ -145,7 +145,7 @@ print(step)
 
 lr = lr_schedule(step)
 
-plt.figure(figsize=(8, 6))
+plt.figure(figsize = (8,6))
 
 plt.plot(step / STEPS_PER_EPOCH, lr)
 
@@ -170,7 +170,7 @@ def get_callbacks(name):
     return [
         tfdocs.modeling.EpochDots(),
         tf.keras.callbacks.EarlyStopping(monitor='val_binary_crossentropy', patience=200),
-        tf.keras.callbacks.TensorBoard(logdir/name)
+        tf.keras.callbacks.TensorBoard(logdir/name),
     ]
 
 """
@@ -178,14 +178,19 @@ def get_callbacks(name):
 """
 
 def compile_and_fit(model, name, optimizer=None, max_epochs=10000):
+
     if optimizer is None:
+
         optimizer = get_optimizer()
 
     model.compile(
         optimizer=optimizer,
         loss=tf.keras.losses.BinaryCrossentropy(from_logits=True),
         metrics=[
-            tf.keras.losses.BinaryCrossentropy(from_logits=True, name='binary_crossentropy'),
+            tf.keras.losses.BinaryCrossentropy(
+                from_logits=True,
+                name='binary_crossentropy'
+            ),
             'accuracy'
         ]
     )
@@ -198,8 +203,8 @@ def compile_and_fit(model, name, optimizer=None, max_epochs=10000):
         epochs=max_epochs,
         validation_data=validate_ds,
         callbacks=get_callbacks(name),
-        verbose=0)
-
+        verbose=0
+    )
     return history
 
 """
@@ -335,9 +340,9 @@ L2正则化将惩罚权重参数而不会使其稀疏，因为对于小权重，
 
 l2_model = tf.keras.Sequential([
     layers.Dense(512, activation='elu', kernel_regularizer=regularizers.l2(0.001), input_shape=(FEATURES,)),
-    layers.Dense(512, activation='elu', kernel_regularizer=regularizers.l2(0.001), input_shape=(FEATURES,)),
-    layers.Dense(512, activation='elu', kernel_regularizer=regularizers.l2(0.001), input_shape=(FEATURES,)),
-    layers.Dense(512, activation='elu', kernel_regularizer=regularizers.l2(0.001), input_shape=(FEATURES,)),
+    layers.Dense(512, activation='elu', kernel_regularizer=regularizers.l2(0.001)),
+    layers.Dense(512, activation='elu', kernel_regularizer=regularizers.l2(0.001)),
+    layers.Dense(512, activation='elu', kernel_regularizer=regularizers.l2(0.001)),
     layers.Dense(1)
 ])
 
@@ -354,3 +359,25 @@ l2（0.001）表 示该层权重矩阵中的每个系数将为网络的总损耗
 plotter.plot(regularizer_histories)
 plt.ylim([0.5, 0.7])
 plt.show()
+
+"""
+如图所见，“L2”正则化模型现在比“ Tiny”模型更具竞争力。尽管具有相同数量的参数，但“ L2”模型也比其基于的“大”模型更耐过拟合。
+"""
+
+"""
+这种正则化有两点要注意。
+
+首先：如果您正在编写自己的训练循环，则需要确保向模型询问其正则化损失。
+
+第二：此实现通过将权重损失添加到模型的损失中，然后在此之后应用标准优化过程来工作。
+
+还有第二种方法，它只对原始损耗运行优化器，然后在应用计算出的步骤时，优化器还会应用一些权重衰减。这种“解耦的权重衰减”可在诸如Optimizer.FTRL和Optimizer.AdamW之类的优化器中看到。
+"""
+
+result = l2_model(features)
+
+regularization_loss=tf.add_n(l2_model.losses)
+
+"""
+Add dropout
+"""
