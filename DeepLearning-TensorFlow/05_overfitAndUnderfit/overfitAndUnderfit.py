@@ -380,4 +380,40 @@ regularization_loss=tf.add_n(l2_model.losses)
 
 """
 Add dropout
+Dropout是Hinton和他在多伦多大学的学生开发的最有效，最常用的神经网络正则化技术之一。
+Dropout的直观解释是，由于网络中的各个节点不能依赖于其他节点的输出，因此每个节点必须输出自己有用的功能。
+
+Dropout, 应用于图层的过程包括在训练过程中随机“dropping out”（即设置为零）该图层的许多输出特征。
+假设在训练过程中，给定的图层通常会为给定的输入样本返回向量[0.2、0.5、1.3、0.8、1.1]；
+应用删除后，此向量将有一些零个条目随机分布，        例如[0，0.5，1.3，0，1.1]。
+
+“丢出率”是被清零的特征的一部分。通常设置在 0.2 到 0.5 之间。在测试时，不会丢失任何单元，而是将图层的输出值按等于丢失率的比例缩小，以平衡一个活跃的单元（而不是训练时）的事实。
+
+在tf.keras中，您可以通过Dropout层在网络中引入Dropout，该层将立即应用于该层的输出。
+
+让我们在网络中添加两个Dropout层，看看它们在减少过度拟合方面的表现如何：
+"""
+
+dropout_model = tf.keras.Sequential([
+    layers.Dense(512, activation='elu', input_shape=(FEATURES,)),
+    layers.Dropout(0.5),
+    layers.Dense(512, activation='elu'),
+    layers.Dropout(0.5),
+    layers.Dense(512, activation='elu'),
+    layers.Dropout(0.5),
+    layers.Dense(512, activation='elu'),
+    layers.Dropout(0.5),
+    layers.Dense(1)
+])
+
+regularizer_histories['dropout'] = compile_and_fit(dropout_model, "regularizers/dropout")
+
+plotter.plot(regularizer_histories)
+
+plt.ylim([0.5, 0.7])
+
+plt.show()
+
+"""
+从该图中可以明显看出，这两种正则化方法都可以改善“大”模型的行为。但这仍然没有超过“Tiny模型”基线。
 """
