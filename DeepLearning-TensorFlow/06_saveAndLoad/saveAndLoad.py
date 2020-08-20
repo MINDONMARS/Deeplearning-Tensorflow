@@ -155,3 +155,14 @@ SavedModel格式是一个包含protobuf二进制文件和Tensorflow检查点的�
 new_model = tf.keras.models.load_model('saved_model/my_model')
 
 new_model.summary()
+
+"""
+还原的模型使用与原始模型相同的参数进行编译。
+"""
+
+# 尝试使用加载的模型运行评估和预测：
+loss, acc = new_model.evaluate(test_images, test_labels, verbose=2)
+
+print('Restored model, accuracy: {:5.2f}%'.format(100*acc))
+
+print(new_model.predict(test_images).shape)
