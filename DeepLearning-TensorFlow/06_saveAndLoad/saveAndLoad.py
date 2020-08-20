@@ -166,3 +166,19 @@ loss, acc = new_model.evaluate(test_images, test_labels, verbose=2)
 print('Restored model, accuracy: {:5.2f}%'.format(100*acc))
 
 print(new_model.predict(test_images).shape)
+
+"""
+HDF5 format
+Keras使用HDF5标准提供了一种基本的保存格式。
+"""
+
+model = create_model()
+
+model.fit(train_images, train_labels, epochs=5)
+
+"""
+将整个模型保存到HDF5文件中。 
+扩展名'.h5'表示应将模型保存到HDF5。
+"""
+
+model.save('my_model.h5')
