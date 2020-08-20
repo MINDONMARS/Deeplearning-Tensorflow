@@ -143,3 +143,15 @@ model.fit(train_images, train_labels, epochs=5)
 # Save the entire model as a SavedModel.
 
 model.save('saved_model/my_model')
+
+"""
+SavedModel格式是一个包含protobuf二进制文件和Tensorflow检查点的文件夹。
+"""
+
+"""
+从已保存的模型中重新加载新的Keras模型：
+"""
+
+new_model = tf.keras.models.load_model('saved_model/my_model')
+
+new_model.summary()
