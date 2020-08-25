@@ -192,3 +192,8 @@ new_model = tf.keras.models.load_model('my_model.h5')
 
 # 显示模型架构
 new_model.summary()
+
+# 检查准确性
+loss, acc = new_model.evaluate(test_images, test_labels, verbose=2)
+
+print('Restored model, accuracy: {:5.2f}%'.format(100*acc))
