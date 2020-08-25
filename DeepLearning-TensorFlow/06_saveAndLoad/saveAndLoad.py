@@ -197,3 +197,24 @@ new_model.summary()
 loss, acc = new_model.evaluate(test_images, test_labels, verbose=2)
 
 print('Restored model, accuracy: {:5.2f}%'.format(100*acc))
+
+"""
+Keras通过检查架构来保存模型。这种技术可以保存一切：
+
+权重值
+模型的架构
+模型的训练配置（传递给您的编译信息）
+优化器及其状态（如果有）（这使您可以从离开的地方重新开始训练）
+Keras无法保存v1.x优化器（来自tf.compat.v1.train），因为它们与检查点不兼容。对于v1.x优化器，您需要在加载后重新编译模型-失去优化器的状态。
+
+保存自定义对象
+如果使用的是SavedModel格式，则可以跳过此部分。 
+HDF5和SavedModel之间的主要区别在于，HDF5使用对象配置保存模型体系结构，而SavedModel保存执行图。因此，SavedModels能够保存自定义对象，例如子类化模型和自定义层，而无需原始代码。
+
+要将自定义对象保存到HDF5，必须执行以下操作：
+
+1.在对象中定义一个get_config方法，以及可选的from_config类方法。
+    get_config(self)返回一个JSON可序列化的字典，其中包含重新创建对象所需的参数。
+    from_config(cls，config)使用从get_config返回的配置来创建新对象。默认情况下，此函数将使用config作为初始化变量（返回cls（** config））。
+2.加载模型时，将对象传递给custom_objects参数。参数必须是将字符串类名称映射到Python类的字典。 E.g. tf.keras.models.load_model(path, custom_objects={'CustomLayer': CustomLayer})
+"""
