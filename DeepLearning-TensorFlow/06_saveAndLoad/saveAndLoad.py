@@ -182,3 +182,13 @@ model.fit(train_images, train_labels, epochs=5)
 """
 
 model.save('my_model.h5')
+
+"""
+现在，从该文件重建模型：
+"""
+
+# 重新创建完全相同的模型，包括权重和优化器
+new_model = tf.keras.models.load_model('my_model.h5')
+
+# 显示模型架构
+new_model.summary()
