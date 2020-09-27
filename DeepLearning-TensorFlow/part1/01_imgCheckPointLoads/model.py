@@ -63,7 +63,7 @@ def plot_value_array(i, predictions_array, true_label):
 
 
 if __name__ == '__main__':
-    checkpoint_path = "/Users/chixu/Desktop/DeepLearning-TensorFlow/loadTrainingImg/cp.ckpt"
+    checkpoint_path = "/Users/chixu/Desktop/projFile/Deeplearning-Tensorflow/DeepLearning-TensorFlow/part1/loadTrainingImg/cp.ckpt"
 
     fashion_mnist = keras.datasets.fashion_mnist
 
